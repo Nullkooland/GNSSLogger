@@ -69,8 +69,8 @@ public class RealTimePositionVelocityCalculator implements GnssListener {
     private HandlerThread mPositionVelocityCalculationHandlerThread;
     private Handler mMyPositionVelocityCalculationHandler;
     private int mCurrentColor = Color.rgb(0x4a, 0x5f, 0x70);
-    private int mCurrentColorIndex = 0;
-    private boolean mAllowShowingRawResults = false;
+    private int mCurrentColorIndex;
+    private boolean mAllowShowingRawResults;
     private MapFragment mMapFragement;
     private MainActivity mMainActivity;
     private PlotFragment mPlotFragment;
@@ -82,8 +82,8 @@ public class RealTimePositionVelocityCalculator implements GnssListener {
             Color.rgb(0x66, 0x77, 0x7d)
     };
     private int mResidualPlotStatus;
-    private double[] mGroundTruth = null;
-    private int mPositionSolutionCount = 0;
+    private double[] mGroundTruth;
+    private int mPositionSolutionCount;
     private UIResultComponent uiResultComponent;
 
     public RealTimePositionVelocityCalculator() {
@@ -93,7 +93,7 @@ public class RealTimePositionVelocityCalculator implements GnssListener {
         mMyPositionVelocityCalculationHandler =
                 new Handler(mPositionVelocityCalculationHandlerThread.getLooper());
 
-        final Runnable r =
+        Runnable r =
                 new Runnable() {
                     @Override
                     public void run() {
@@ -138,9 +138,9 @@ public class RealTimePositionVelocityCalculator implements GnssListener {
      * visualize both GPS location computed by the device and the one computed from the raw data.
      */
     @Override
-    public void onLocationChanged(final Location location) {
+    public void onLocationChanged(Location location) {
         if (location.getProvider().equals(LocationManager.NETWORK_PROVIDER)) {
-            final Runnable r =
+            Runnable r =
                     new Runnable() {
                         @Override
                         public void run() {
@@ -162,7 +162,7 @@ public class RealTimePositionVelocityCalculator implements GnssListener {
 
         } else if (location.getProvider().equals(LocationManager.GPS_PROVIDER)) {
             if (mAllowShowingRawResults) {
-                final Runnable r =
+                Runnable r =
                         new Runnable() {
                             @Override
                             public void run() {
@@ -295,9 +295,9 @@ public class RealTimePositionVelocityCalculator implements GnssListener {
     }
 
     @Override
-    public void onGnssMeasurementsReceived(final GnssMeasurementsEvent event) {
+    public void onGnssMeasurementsReceived(GnssMeasurementsEvent event, boolean isGpsOnly) {
         mAllowShowingRawResults = true;
-        final Runnable r =
+        Runnable r =
                 new Runnable() {
                     @Override
                     public void run() {
@@ -305,7 +305,7 @@ public class RealTimePositionVelocityCalculator implements GnssListener {
                                 new Runnable() {
                                     @Override
                                     public void run() {
-                                        mPlotFragment.updateCnoTab(event);
+                                        mPlotFragment.updateCnoTab(event, isGpsOnly);
                                     }
                                 });
                         if (mPseudorangePositionVelocityFromRealTimeEvents == null) {
@@ -495,7 +495,7 @@ public class RealTimePositionVelocityCalculator implements GnssListener {
      * Sets {@link MapFragment} for receiving WLS location update
      */
     public void setMapFragment(MapFragment mapFragement) {
-        this.mMapFragement = mapFragement;
+        mMapFragement = mapFragement;
     }
 
     /**
@@ -503,14 +503,14 @@ public class RealTimePositionVelocityCalculator implements GnssListener {
      * plot
      */
     public void setPlotFragment(PlotFragment plotFragment) {
-        this.mPlotFragment = plotFragment;
+        mPlotFragment = plotFragment;
     }
 
     /**
      * Sets {@link MainActivity} for running some UI tasks on UI thread
      */
     public void setMainActivity(MainActivity mainActivity) {
-        this.mMainActivity = mainActivity;
+        mMainActivity = mainActivity;
     }
 
     /**

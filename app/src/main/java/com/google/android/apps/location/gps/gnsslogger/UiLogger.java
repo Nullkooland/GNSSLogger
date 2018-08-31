@@ -80,23 +80,26 @@ public class UiLogger implements GnssListener {
     }
 
     @Override
-    public void onGnssMeasurementsReceived(GnssMeasurementsEvent event) {
+    public void onGnssMeasurementsReceived(GnssMeasurementsEvent event, boolean isGpsOnly) {
         StringBuilder builder = new StringBuilder("[ GnssMeasurementsEvent:\n\n");
 
         builder.append(toStringClock(event.getClock()));
         builder.append("\n");
 
         for (GnssMeasurement measurement : event.getMeasurements()) {
+            if(isGpsOnly && measurement.getConstellationType() != GnssStatus.CONSTELLATION_GPS) {
+                continue;
+            }
             builder.append(toStringMeasurement(measurement));
             builder.append("\n");
         }
 
         builder.append("]");
-        logMeasurementEvent("onGnsssMeasurementsReceived: " + builder.toString());
+        logMeasurementEvent("onGnsssMeasurementsReceived: " + builder);
     }
 
     private String toStringClock(GnssClock gnssClock) {
-        final String format = "   %-4s = %s\n";
+        String format = "   %-4s = %s\n";
         StringBuilder builder = new StringBuilder("GnssClock:\n");
         DecimalFormat numberFormat = new DecimalFormat("#0.000");
         if (gnssClock.hasLeapSecond()) {
@@ -150,7 +153,7 @@ public class UiLogger implements GnssListener {
     }
 
     private String toStringMeasurement(GnssMeasurement measurement) {
-        final String format = "   %-4s = %s\n";
+        String format = "   %-4s = %s\n";
         StringBuilder builder = new StringBuilder("GnssMeasurement:\n");
         DecimalFormat numberFormat = new DecimalFormat("#0.000");
         DecimalFormat numberFormat1 = new DecimalFormat("#0.000E00");

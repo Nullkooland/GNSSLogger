@@ -210,7 +210,7 @@ public class MainActivity extends AppCompatActivity
                         mAgnssUiLogger);
         mFragments = new Fragment[NUMBER_OF_FRAGMENTS];
         SettingsFragment settingsFragment = new SettingsFragment();
-        settingsFragment.setGpsContainer(mGnssContainer);
+        settingsFragment.setGnssContainer(mGnssContainer);
         settingsFragment.setRealTimePositionVelocityCalculator(mRealTimePositionVelocityCalculator);
         settingsFragment.setAutoModeSwitcher(this);
         mFragments[FRAGMENT_INDEX_SETTING] = settingsFragment;
@@ -239,12 +239,12 @@ public class MainActivity extends AppCompatActivity
 
 
         // The viewpager that will host the section contents.
-        ViewPager viewPager = (ViewPager) findViewById(R.id.pager);
+        ViewPager viewPager = findViewById(R.id.pager);
         viewPager.setOffscreenPageLimit(5);
         ViewPagerAdapter adapter = new ViewPagerAdapter(getFragmentManager());
         viewPager.setAdapter(adapter);
 
-        TabLayout tabLayout = (TabLayout) findViewById(R.id.tab_layout);
+        TabLayout tabLayout = findViewById(R.id.tab_layout);
         tabLayout.setTabsFromPagerAdapter(adapter);
 
         // Set a listener via setOnTabSelectedListener(OnTabSelectedListener) to be notified when any
@@ -269,7 +269,7 @@ public class MainActivity extends AppCompatActivity
         return true;
     }
 
-    private void requestPermissionAndSetupFragments(final Activity activity) {
+    private void requestPermissionAndSetupFragments(Activity activity) {
         if (hasPermissions(activity)) {
             setupFragments();
         } else {

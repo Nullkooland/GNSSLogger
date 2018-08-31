@@ -50,6 +50,7 @@ import org.achartengine.util.MathHelper;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
@@ -107,18 +108,18 @@ public class PlotFragment extends Fragment {
     /**
      * The average of the average of strongest satellite signal strength over history
      */
-    private double mAverageCn0 = 0;
+    private double mAverageCn0;
     /**
      * Total number of {@link GnssMeasurementsEvent} has been recieved
      */
-    private int mMeasurementCount = 0;
+    private int mMeasurementCount;
     private double mInitialTimeSeconds = -1;
     private TextView mAnalysisView;
-    private double mLastTimeReceivedSeconds = 0;
+    private double mLastTimeReceivedSeconds;
     private DataSetManager mDataSetManager;
     private XYMultipleSeriesRenderer mCurrentRenderer;
     private LinearLayout mLayout;
-    private int mCurrentTab = 0;
+    private int mCurrentTab;
 
     private static int getUniqueSatelliteIdentifier(int constellationType, int svID) {
         return constellationType * 1000 + svID;
@@ -133,8 +134,8 @@ public class PlotFragment extends Fragment {
                 = new DataSetManager(NUMBER_OF_TABS, NUMBER_OF_CONSTELLATIONS, getContext(), mColorMap);
 
         // Set UI elements handlers
-        final Spinner spinner = plotView.findViewById(R.id.constellation_spinner);
-        final Spinner tabSpinner = plotView.findViewById(R.id.tab_spinner);
+        Spinner spinner = plotView.findViewById(R.id.constellation_spinner);
+        Spinner tabSpinner = plotView.findViewById(R.id.tab_spinner);
 
         OnItemSelectedListener spinnerOnSelectedListener = new OnItemSelectedListener() {
 
@@ -178,7 +179,7 @@ public class PlotFragment extends Fragment {
     /**
      * Updates the CN0 versus Time plot data from a {@link GnssMeasurement}
      */
-    protected void updateCnoTab(GnssMeasurementsEvent event) {
+    protected void updateCnoTab(GnssMeasurementsEvent event, boolean isGpsOnly) {
         long timeInSeconds =
                 TimeUnit.NANOSECONDS.toSeconds(event.getClock().getTimeNanos());
         if (mInitialTimeSeconds < 0) {
@@ -187,7 +188,7 @@ public class PlotFragment extends Fragment {
 
         // Building the texts message in analysis text view
         List<GnssMeasurement> measurements =
-                sortByCarrierToNoiseRatio(new ArrayList<>(event.getMeasurements()));
+                sortByCarrierToNoiseRatio(new ArrayList<>(event.getMeasurements()), isGpsOnly);
         SpannableStringBuilder builder = new SpannableStringBuilder();
         double currentAverage = 0;
         if (measurements.size() >= NUMBER_OF_STRONGEST_SATELLITES) {
@@ -280,15 +281,13 @@ public class PlotFragment extends Fragment {
         mDataSetManager.fillInDiscontinuity(PR_RESIDUAL_TAB, timeSinceLastMeasurement);
     }
 
-    private List<GnssMeasurement> sortByCarrierToNoiseRatio(List<GnssMeasurement> measurements) {
+    private List<GnssMeasurement> sortByCarrierToNoiseRatio(List<GnssMeasurement> measurements, boolean isGpsOnly) {
+
+        measurements.removeIf(measurement -> measurement.getConstellationType() != GnssStatus.CONSTELLATION_GPS);
+
         Collections.sort(
                 measurements,
-                new Comparator<GnssMeasurement>() {
-                    @Override
-                    public int compare(GnssMeasurement o1, GnssMeasurement o2) {
-                        return Double.compare(o2.getCn0DbHz(), o1.getCn0DbHz());
-                    }
-                });
+                (o1, o2) -> Double.compare(o2.getCn0DbHz(), o1.getCn0DbHz()));
         return measurements;
     }
 
@@ -309,7 +308,7 @@ public class PlotFragment extends Fragment {
         };
         private final Random mRandom = new Random();
         private ArrayMap<Integer, Integer> mColorMap = new ArrayMap<>();
-        private int mColorsAssigned = 0;
+        private int mColorsAssigned;
 
         private int getColor(int svId, int constellationType) {
             // Assign the color from Kelly's 21 contrasting colors to satellites first, if all color
@@ -317,7 +316,7 @@ public class PlotFragment extends Fragment {
             if (mColorMap.containsKey(constellationType * 1000 + svId)) {
                 return mColorMap.get(getUniqueSatelliteIdentifier(constellationType, svId));
             }
-            if (this.mColorsAssigned < CONTRASTING_COLORS.length) {
+            if (mColorsAssigned < CONTRASTING_COLORS.length) {
                 int color = Color.parseColor(CONTRASTING_COLORS[mColorsAssigned++]);
                 mColorMap.put(getUniqueSatelliteIdentifier(constellationType, svId), color);
                 return color;

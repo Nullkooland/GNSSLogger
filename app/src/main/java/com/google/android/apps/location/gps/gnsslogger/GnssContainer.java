@@ -45,9 +45,10 @@ public class GnssContainer {
   private boolean mLogMeasurements = true;
   private boolean mLogStatuses = true;
   private boolean mLogNmeas = true;
-  private long registrationTimeNanos = 0L;
-  private long firstLocatinTimeNanos = 0L;
-  private long ttff = 0L;
+  private boolean mGpsOnly;
+  private long registrationTimeNanos;
+  private long firstLocatinTimeNanos;
+  private long ttff;
   private boolean firstTime = true;
 
   private final List<GnssListener> mLoggers;
@@ -118,7 +119,7 @@ public class GnssContainer {
         public void onGnssMeasurementsReceived(GnssMeasurementsEvent event) {
           if (mLogMeasurements) {
             for (GnssListener logger : mLoggers) {
-              logger.onGnssMeasurementsReceived(event);
+              logger.onGnssMeasurementsReceived(event, mGpsOnly);
             }
           }
         }
@@ -186,7 +187,7 @@ public class GnssContainer {
       };
 
   public GnssContainer(Context context, GnssListener... loggers) {
-    this.mLoggers = Arrays.asList(loggers);
+      mLoggers = Arrays.asList(loggers);
     mLocationManager = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
   }
 
@@ -234,6 +235,8 @@ public class GnssContainer {
     return mLogNmeas;
   }
 
+  public void setGpsOnly(boolean value) { mGpsOnly = value; }
+
   public void registerLocation() {
     boolean isGpsProviderEnabled = mLocationManager.isProviderEnabled(LocationManager.GPS_PROVIDER);
     if (isGpsProviderEnabled) {
@@ -264,7 +267,7 @@ public class GnssContainer {
   public void registerSingleGpsLocation() {
     boolean isGpsProviderEnabled = mLocationManager.isProviderEnabled(LocationManager.GPS_PROVIDER);
     if (isGpsProviderEnabled) {
-      this.firstTime = true;
+        firstTime = true;
       registrationTimeNanos = SystemClock.elapsedRealtimeNanos();
       mLocationManager.requestSingleUpdate(LocationManager.GPS_PROVIDER, mLocationListener, null);
     }

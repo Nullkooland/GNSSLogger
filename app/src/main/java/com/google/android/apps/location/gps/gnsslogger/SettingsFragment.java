@@ -58,7 +58,7 @@ public class SettingsFragment extends Fragment {
      * Position in the drop down menu of the auto ground truth mode
      */
     private static int AUTO_GROUND_TRUTH_MODE = 3;
-    private GnssContainer mGpsContainer;
+    private GnssContainer mGnssContainer;
     private HelpDialog helpDialog;
 
     /**
@@ -74,15 +74,15 @@ public class SettingsFragment extends Fragment {
     /**
      * The reference ground truth location by user input.
      */
-    private double[] mFixedReferenceLocation = null;
+    private double[] mFixedReferenceLocation;
 
     /**
      * {@link GroundTruthModeSwitcher} to receive update from AR result broadcast
      */
     private GroundTruthModeSwitcher mModeSwitcher;
 
-    public void setGpsContainer(GnssContainer value) {
-        mGpsContainer = value;
+    public void setGnssContainer(GnssContainer value) {
+        mGnssContainer = value;
     }
 
     /**
@@ -103,11 +103,11 @@ public class SettingsFragment extends Fragment {
     @Override
     public View onCreateView(
             LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        final View view = inflater.inflate(R.layout.fragment_main, container, false /* attachToRoot */);
+        View view = inflater.inflate(R.layout.fragment_main, container, false /* attachToRoot */);
 
-        final Switch registerLocation = (Switch) view.findViewById(R.id.register_location);
-        final TextView registerLocationLabel =
-                (TextView) view.findViewById(R.id.register_location_label);
+        Switch registerLocation = view.findViewById(R.id.register_location);
+        TextView registerLocationLabel =
+                view.findViewById(R.id.register_location_label);
         //set the switch to OFF
         registerLocation.setChecked(false);
         registerLocationLabel.setText("Switch is OFF");
@@ -118,18 +118,18 @@ public class SettingsFragment extends Fragment {
                     public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
 
                         if (isChecked) {
-                            mGpsContainer.registerLocation();
+                            mGnssContainer.registerLocation();
                             registerLocationLabel.setText("Switch is ON");
                         } else {
-                            mGpsContainer.unregisterLocation();
+                            mGnssContainer.unregisterLocation();
                             registerLocationLabel.setText("Switch is OFF");
                         }
                     }
                 });
 
-        final Switch registerMeasurements = (Switch) view.findViewById(R.id.register_measurements);
-        final TextView registerMeasurementsLabel =
-                (TextView) view.findViewById(R.id.register_measurement_label);
+        Switch registerMeasurements = view.findViewById(R.id.register_measurements);
+        TextView registerMeasurementsLabel =
+                view.findViewById(R.id.register_measurement_label);
         //set the switch to OFF
         registerMeasurements.setChecked(false);
         registerMeasurementsLabel.setText("Switch is OFF");
@@ -140,18 +140,18 @@ public class SettingsFragment extends Fragment {
                     public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
 
                         if (isChecked) {
-                            mGpsContainer.registerMeasurements();
+                            mGnssContainer.registerMeasurements();
                             registerMeasurementsLabel.setText("Switch is ON");
                         } else {
-                            mGpsContainer.unregisterMeasurements();
+                            mGnssContainer.unregisterMeasurements();
                             registerMeasurementsLabel.setText("Switch is OFF");
                         }
                     }
                 });
 
-        final Switch registerNavigation = (Switch) view.findViewById(R.id.register_navigation);
-        final TextView registerNavigationLabel =
-                (TextView) view.findViewById(R.id.register_navigation_label);
+        Switch registerNavigation = view.findViewById(R.id.register_navigation);
+        TextView registerNavigationLabel =
+                view.findViewById(R.id.register_navigation_label);
         //set the switch to OFF
         registerNavigation.setChecked(false);
         registerNavigationLabel.setText("Switch is OFF");
@@ -162,18 +162,18 @@ public class SettingsFragment extends Fragment {
                     public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
 
                         if (isChecked) {
-                            mGpsContainer.registerNavigation();
+                            mGnssContainer.registerNavigation();
                             registerNavigationLabel.setText("Switch is ON");
                         } else {
-                            mGpsContainer.unregisterNavigation();
+                            mGnssContainer.unregisterNavigation();
                             registerNavigationLabel.setText("Switch is OFF");
                         }
                     }
                 });
 
-        final Switch registerGpsStatus = (Switch) view.findViewById(R.id.register_status);
-        final TextView registerGpsStatusLabel =
-                (TextView) view.findViewById(R.id.register_status_label);
+        Switch registerGpsStatus = view.findViewById(R.id.register_status);
+        TextView registerGpsStatusLabel =
+                view.findViewById(R.id.register_status_label);
         //set the switch to OFF
         registerGpsStatus.setChecked(false);
         registerGpsStatusLabel.setText("Switch is OFF");
@@ -184,17 +184,17 @@ public class SettingsFragment extends Fragment {
                     public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
 
                         if (isChecked) {
-                            mGpsContainer.registerGnssStatus();
+                            mGnssContainer.registerGnssStatus();
                             registerGpsStatusLabel.setText("Switch is ON");
                         } else {
-                            mGpsContainer.unregisterGpsStatus();
+                            mGnssContainer.unregisterGpsStatus();
                             registerGpsStatusLabel.setText("Switch is OFF");
                         }
                     }
                 });
 
-        final Switch registerNmea = (Switch) view.findViewById(R.id.register_nmea);
-        final TextView registerNmeaLabel = (TextView) view.findViewById(R.id.register_nmea_label);
+        Switch registerNmea = view.findViewById(R.id.register_nmea);
+        TextView registerNmeaLabel = view.findViewById(R.id.register_nmea_label);
         //set the switch to OFF
         registerNmea.setChecked(false);
         registerNmeaLabel.setText("Switch is OFF");
@@ -205,16 +205,38 @@ public class SettingsFragment extends Fragment {
                     public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
 
                         if (isChecked) {
-                            mGpsContainer.registerNmea();
+                            mGnssContainer.registerNmea();
                             registerNmeaLabel.setText("Switch is ON");
                         } else {
-                            mGpsContainer.unregisterNmea();
+                            mGnssContainer.unregisterNmea();
                             registerNmeaLabel.setText("Switch is OFF");
                         }
                     }
                 });
-        final Switch autoScroll = (Switch) view.findViewById(R.id.auto_scroll_on);
-        final TextView turnOnAutoScroll = (TextView) view.findViewById(R.id.turn_on_auto_scroll);
+
+        Switch gpsOnly = view.findViewById(R.id.gps_only);
+        TextView gpsOnlyLabel = view.findViewById(R.id.gps_only_label);
+        //set the switch to OFF
+        gpsOnly.setChecked(false);
+        gpsOnlyLabel.setText("Switch is OFF");
+        gpsOnly.setOnCheckedChangeListener(
+                new OnCheckedChangeListener() {
+
+                    @Override
+                    public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+
+                        if (isChecked) {
+                            mGnssContainer.setGpsOnly(true);
+                            gpsOnlyLabel.setText("Switch is ON");
+                        } else {
+                            mGnssContainer.setGpsOnly(false);
+                            gpsOnlyLabel.setText("Switch is OFF");
+                        }
+                    }
+                });
+
+        Switch autoScroll = view.findViewById(R.id.auto_scroll_on);
+        TextView turnOnAutoScroll = view.findViewById(R.id.turn_on_auto_scroll);
         turnOnAutoScroll.setText("Switch is OFF");
         autoScroll.setOnCheckedChangeListener(
                 new OnCheckedChangeListener() {
@@ -235,8 +257,8 @@ public class SettingsFragment extends Fragment {
                     }
                 });
 
-        final Switch residualPlotSwitch = (Switch) view.findViewById(R.id.residual_plot_enabled);
-        final TextView turnOnResidual = (TextView) view.findViewById(R.id.turn_on_residual_plot);
+        Switch residualPlotSwitch = view.findViewById(R.id.residual_plot_enabled);
+        TextView turnOnResidual = view.findViewById(R.id.turn_on_residual_plot);
         turnOnResidual.setText("Switch is OFF");
         residualPlotSwitch.setOnCheckedChangeListener(
                 new OnCheckedChangeListener() {
@@ -248,18 +270,18 @@ public class SettingsFragment extends Fragment {
                                     (LayoutInflater)
                                             getActivity().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
                             View layout = inflater.inflate(R.layout.pop_up_window,
-                                    (ViewGroup) getActivity().findViewById(R.id.pop));
+                                    getActivity().findViewById(R.id.pop));
 
                             // Find UI elements in pop up window
-                            final Spinner residualSpinner = layout.findViewById(R.id.residual_spinner);
+                            Spinner residualSpinner = layout.findViewById(R.id.residual_spinner);
                             Button buttonOk = layout.findViewById(R.id.popup_button_ok);
                             Button buttonCancel = layout.findViewById(R.id.popup_button_cancel);
-                            final TextView longitudeInput = layout.findViewById(R.id.longitude_input);
-                            final TextView latitudeInput = layout.findViewById(R.id.latitude_input);
-                            final TextView altitudeInput = layout.findViewById(R.id.altitude_input);
+                            TextView longitudeInput = layout.findViewById(R.id.longitude_input);
+                            TextView latitudeInput = layout.findViewById(R.id.latitude_input);
+                            TextView altitudeInput = layout.findViewById(R.id.altitude_input);
 
                             // Set up pop up window attributes
-                            final PopupWindow popupWindow =
+                            PopupWindow popupWindow =
                                     new PopupWindow(layout, LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
                             popupWindow.setOutsideTouchable(false);
                             popupWindow.showAtLocation(
@@ -343,7 +365,7 @@ public class SettingsFragment extends Fragment {
                     }
                 }
         );
-        Button help = (Button) view.findViewById(R.id.help);
+        Button help = view.findViewById(R.id.help);
         helpDialog = new HelpDialog(getContext());
         helpDialog.setTitle("Help contents");
         helpDialog.create();
@@ -356,7 +378,7 @@ public class SettingsFragment extends Fragment {
                     }
                 });
 
-        Button exit = (Button) view.findViewById(R.id.exit);
+        Button exit = view.findViewById(R.id.exit);
         exit.setOnClickListener(
                 new OnClickListener() {
                     @Override
@@ -365,10 +387,10 @@ public class SettingsFragment extends Fragment {
                     }
                 });
 
-        TextView swInfo = (TextView) view.findViewById(R.id.sw_info);
+        TextView swInfo = view.findViewById(R.id.sw_info);
 
         java.lang.reflect.Method method;
-        LocationManager locationManager = mGpsContainer.getLocationManager();
+        LocationManager locationManager = mGnssContainer.getLocationManager();
         try {
             method = locationManager.getClass().getMethod("getGnssYearOfHardware");
             int hwYear = (int) method.invoke(locationManager);

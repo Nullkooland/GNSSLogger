@@ -71,7 +71,7 @@ public class FileLogger implements GnssListener {
     private UIFragmentComponent mUiComponent;
 
     public FileLogger(Context context) {
-        this.mContext = context;
+        mContext = context;
     }
 
     public synchronized UIFragmentComponent getUiComponent() {
@@ -272,13 +272,16 @@ public class FileLogger implements GnssListener {
     }
 
     @Override
-    public void onGnssMeasurementsReceived(GnssMeasurementsEvent event) {
+    public void onGnssMeasurementsReceived(GnssMeasurementsEvent event, boolean isGpsOnly) {
         synchronized (mFileLock) {
             if (mFileWriter == null) {
                 return;
             }
             GnssClock gnssClock = event.getClock();
             for (GnssMeasurement measurement : event.getMeasurements()) {
+                if(isGpsOnly && measurement.getConstellationType() != GnssStatus.CONSTELLATION_GPS) {
+                    continue;
+                }
                 try {
                     writeGnssMeasurementToFile(gnssClock, measurement);
                 } catch (IOException e) {
@@ -426,7 +429,7 @@ public class FileLogger implements GnssListener {
         private final List<File> mRetainedFiles;
 
         public FileToDeleteFilter(File... retainedFiles) {
-            this.mRetainedFiles = Arrays.asList(retainedFiles);
+            mRetainedFiles = Arrays.asList(retainedFiles);
         }
 
         /**

@@ -73,7 +73,7 @@ public class AgnssUiLogger implements GnssListener {
     }
 
     @Override
-    public void onGnssMeasurementsReceived(GnssMeasurementsEvent event) {
+    public void onGnssMeasurementsReceived(GnssMeasurementsEvent event, boolean isGpsOnly) {
     }
 
     @Override
