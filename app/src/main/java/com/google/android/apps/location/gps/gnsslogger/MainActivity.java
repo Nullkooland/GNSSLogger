@@ -78,7 +78,8 @@ public class MainActivity extends AppCompatActivity
     private GnssContainer mGnssContainer;
     private UiLogger mUiLogger;
     private RealTimePositionVelocityCalculator mRealTimePositionVelocityCalculator;
-    private FileLogger mFileLogger;
+    //private FileLogger mFileLogger;
+    private AlternativeFileLogger mAlternativeFileLogger;
     private AgnssUiLogger mAgnssUiLogger;
     private Fragment[] mFragments;
     private GoogleApiClient mGoogleApiClient;
@@ -199,25 +200,29 @@ public class MainActivity extends AppCompatActivity
         mRealTimePositionVelocityCalculator.setResidualPlotMode(
                 RealTimePositionVelocityCalculator.RESIDUAL_MODE_DISABLED, null /* fixedGroundTruth */);
 
-        mFileLogger = new FileLogger(getApplicationContext());
+        //mFileLogger = new FileLogger(getApplicationContext());
+        mAlternativeFileLogger = new AlternativeFileLogger(getApplicationContext());
         mAgnssUiLogger = new AgnssUiLogger();
         mGnssContainer =
                 new GnssContainer(
                         getApplicationContext(),
                         mUiLogger,
-                        mFileLogger,
+                        //mFileLogger,
+                        mAlternativeFileLogger,
                         mRealTimePositionVelocityCalculator,
                         mAgnssUiLogger);
         mFragments = new Fragment[NUMBER_OF_FRAGMENTS];
         SettingsFragment settingsFragment = new SettingsFragment();
         settingsFragment.setGnssContainer(mGnssContainer);
+        settingsFragment.setAlternativeFileLogger(mAlternativeFileLogger);
         settingsFragment.setRealTimePositionVelocityCalculator(mRealTimePositionVelocityCalculator);
         settingsFragment.setAutoModeSwitcher(this);
         mFragments[FRAGMENT_INDEX_SETTING] = settingsFragment;
 
         LoggerFragment loggerFragment = new LoggerFragment();
         loggerFragment.setUILogger(mUiLogger);
-        loggerFragment.setFileLogger(mFileLogger);
+        //loggerFragment.setFileLogger(mFileLogger);
+        loggerFragment.setAlternativeFileLogger(mAlternativeFileLogger);
         mFragments[FRAGMENT_INDEX_LOGGER] = loggerFragment;
 
         ResultFragment resultFragment = new ResultFragment();

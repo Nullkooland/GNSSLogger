@@ -56,6 +56,7 @@ public class LoggerFragment extends Fragment implements TimerListener {
     private TextView mLogView;
     private ScrollView mScrollView;
     private FileLogger mFileLogger;
+    private AlternativeFileLogger mAlternativeFileLogger;
     private UiLogger mUiLogger;
     private Button mStartLog;
     private Button mTimer;
@@ -112,6 +113,10 @@ public class LoggerFragment extends Fragment implements TimerListener {
         mFileLogger = value;
     }
 
+    public void setAlternativeFileLogger(AlternativeFileLogger value) {
+        mAlternativeFileLogger = value;
+    }
+
     @Override
     public void onResume() {
         super.onResume();
@@ -130,8 +135,8 @@ public class LoggerFragment extends Fragment implements TimerListener {
             LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View newView = inflater.inflate(R.layout.fragment_log, container, false /* attachToRoot */);
 
-        mLogView = (TextView) newView.findViewById(R.id.log_view);
-        mScrollView = (ScrollView) newView.findViewById(R.id.log_scroll);
+        mLogView = newView.findViewById(R.id.log_view);
+        mScrollView = newView.findViewById(R.id.log_scroll);
 
         getActivity()
                 .bindService(
@@ -141,14 +146,19 @@ public class LoggerFragment extends Fragment implements TimerListener {
         if (currentUiLogger != null) {
             currentUiLogger.setUiFragmentComponent(mUiComponent);
         }
-        FileLogger currentFileLogger = mFileLogger;
-        if (currentFileLogger != null) {
-            currentFileLogger.setUiComponent(mUiComponent);
+        //FileLogger currentFileLogger = mFileLogger;
+
+        //if (mFileLogger != null) {
+        //    mFileLogger.setUiComponent(mUiComponent);
+        //}
+
+        if (mAlternativeFileLogger != null) {
+            mAlternativeFileLogger.setUiComponent(mUiComponent);
         }
 
-        Button start = (Button) newView.findViewById(R.id.start_log);
-        Button end = (Button) newView.findViewById(R.id.end_log);
-        Button clear = (Button) newView.findViewById(R.id.clear_log);
+        Button start = newView.findViewById(R.id.start_log);
+        Button end = newView.findViewById(R.id.end_log);
+        Button clear = newView.findViewById(R.id.clear_log);
 
         start.setOnClickListener(
                 new OnClickListener() {
@@ -174,10 +184,10 @@ public class LoggerFragment extends Fragment implements TimerListener {
                     }
                 });
 
-        mTimerDisplay = (TextView) newView.findViewById(R.id.timer_display);
-        mTimer = (Button) newView.findViewById(R.id.timer);
-        mStartLog = (Button) newView.findViewById(R.id.start_logs);
-        mSendFile = (Button) newView.findViewById(R.id.send_file);
+        mTimerDisplay = newView.findViewById(R.id.timer_display);
+        mTimer = newView.findViewById(R.id.timer);
+        mStartLog = newView.findViewById(R.id.start_logs);
+        mSendFile = newView.findViewById(R.id.send_file);
 
         displayTimer(mTimerValues, false /* countdownStyle */);
         enableOptions(true /* start */);
@@ -188,7 +198,8 @@ public class LoggerFragment extends Fragment implements TimerListener {
                     public void onClick(View view) {
                         enableOptions(false /* start */);
                         Toast.makeText(getContext(), R.string.start_message, Toast.LENGTH_LONG).show();
-                        mFileLogger.startNewLog();
+                        //mFileLogger.startNewLog();
+                        mAlternativeFileLogger.startNewLog();
 
                         if (!mTimerValues.isZero() && (mTimerService != null)) {
                             mTimerService.startTimer();
@@ -222,7 +233,8 @@ public class LoggerFragment extends Fragment implements TimerListener {
         enableOptions(true /* start */);
         Toast.makeText(getContext(), R.string.stop_message, Toast.LENGTH_LONG).show();
         displayTimer(mTimerValues, false /* countdownStyle */);
-        mFileLogger.send();
+        //mFileLogger.sendLog();
+        mAlternativeFileLogger.sendLog();
     }
 
     void displayTimer(TimerValues values, boolean countdownStyle) {

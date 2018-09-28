@@ -21,12 +21,14 @@ import android.location.GnssMeasurement;
 import android.location.GnssMeasurementsEvent;
 import android.location.GnssNavigationMessage;
 import android.location.GnssStatus;
-import android.util.Log;
-import com.google.location.lbs.gnss.gps.pseudorange.Ecef2EnuConverter.EnuValues;
-import com.google.location.lbs.gnss.gps.pseudorange.Ecef2LlaConverter.GeodeticLlaValues;
 import android.location.cts.nano.Ephemeris.GpsEphemerisProto;
 import android.location.cts.nano.Ephemeris.GpsNavMessageProto;
 import android.location.cts.suplClient.SuplRrlpController;
+import android.util.Log;
+
+import com.google.location.lbs.gnss.gps.pseudorange.Ecef2EnuConverter.EnuValues;
+import com.google.location.lbs.gnss.gps.pseudorange.Ecef2LlaConverter.GeodeticLlaValues;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.net.UnknownHostException;
@@ -296,8 +298,7 @@ public class PseudorangePositionVelocityFromRealTimeEvents {
 
   private boolean isEmptyNavMessage(GpsNavMessageProto navMessageProto) {
     if(navMessageProto.iono == null)return true;
-    if(navMessageProto.ephemerids.length ==0)return true;
-    return  false;
+      return navMessageProto.ephemerids.length == 0;
   }
 
   private boolean navMessageProtoContainsSvid(GpsNavMessageProto navMessageProto, int svid) {

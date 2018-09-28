@@ -74,10 +74,6 @@ public class FileLogger implements GnssListener {
         mContext = context;
     }
 
-    public synchronized UIFragmentComponent getUiComponent() {
-        return mUiComponent;
-    }
-
     public synchronized void setUiComponent(UIFragmentComponent value) {
         mUiComponent = value;
     }
@@ -205,7 +201,7 @@ public class FileLogger implements GnssListener {
      * Send the current log via email or other options selected from a pop menu shown to the user. A
      * new log is started when calling this function.
      */
-    public void send() {
+    public void sendLog() {
         if (mFile == null) {
             return;
         }
@@ -218,7 +214,7 @@ public class FileLogger implements GnssListener {
         Uri fileURI =
                 FileProvider.getUriForFile(mContext, BuildConfig.APPLICATION_ID + ".provider", mFile);
         emailIntent.putExtra(Intent.EXTRA_STREAM, fileURI);
-        getUiComponent().startActivity(Intent.createChooser(emailIntent, "Send log.."));
+        mUiComponent.startActivity(Intent.createChooser(emailIntent, "Send log.."));
         if (mFileWriter != null) {
             try {
                 mFileWriter.flush();

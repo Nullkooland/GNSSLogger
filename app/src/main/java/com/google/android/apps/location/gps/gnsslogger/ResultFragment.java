@@ -51,8 +51,8 @@ public class ResultFragment extends Fragment {
     public View onCreateView(
             LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View newView = inflater.inflate(R.layout.results_log, container, false /* attachToRoot */);
-        mLogView = (TextView) newView.findViewById(R.id.log_view);
-        mScrollView = (ScrollView) newView.findViewById(R.id.log_scroll);
+        mLogView = newView.findViewById(R.id.log_view);
+        mScrollView = newView.findViewById(R.id.log_scroll);
 
         RealTimePositionVelocityCalculator currentPositionVelocityCalculator =
                 mPositionVelocityCalculator;
@@ -60,7 +60,7 @@ public class ResultFragment extends Fragment {
             currentPositionVelocityCalculator.setUiResultComponent(mUiComponent);
         }
 
-        Button start = (Button) newView.findViewById(R.id.start_log);
+        Button start = newView.findViewById(R.id.start_log);
         start.setOnClickListener(
                 new OnClickListener() {
                     @Override
@@ -69,7 +69,7 @@ public class ResultFragment extends Fragment {
                     }
                 });
 
-        Button end = (Button) newView.findViewById(R.id.end_log);
+        Button end = newView.findViewById(R.id.end_log);
         end.setOnClickListener(
                 new OnClickListener() {
                     @Override
@@ -78,7 +78,7 @@ public class ResultFragment extends Fragment {
                     }
                 });
 
-        Button clear = (Button) newView.findViewById(R.id.clear_log);
+        Button clear = newView.findViewById(R.id.clear_log);
         clear.setOnClickListener(
                 new OnClickListener() {
                     @Override

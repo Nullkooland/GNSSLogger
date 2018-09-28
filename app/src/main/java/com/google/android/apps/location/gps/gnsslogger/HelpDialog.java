@@ -44,7 +44,7 @@ public class HelpDialog extends Dialog {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         setContentView(R.layout.help);
-        WebView help = (WebView) findViewById(R.id.helpView);
+        WebView help = findViewById(R.id.helpView);
         help.setWebViewClient(
                 new WebViewClient() {
                     @Override

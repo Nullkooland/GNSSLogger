@@ -16,11 +16,12 @@
 
 package com.google.location.lbs.gnss.gps.pseudorange;
 
-import com.google.common.base.Preconditions;
 import android.location.cts.nano.Ephemeris.GpsEphemerisProto;
 import android.location.cts.nano.Ephemeris.GpsNavMessageProto;
 import android.location.cts.nano.Ephemeris.IonosphericModelProto;
 import android.support.annotation.NonNull;
+
+import com.google.common.base.Preconditions;
 
 import java.util.ArrayList;
 import java.util.concurrent.TimeUnit;
@@ -175,7 +176,7 @@ public class GpsNavigationMessageStore {
    */
   @NonNull
   public GpsNavMessageProto createDecodedNavMessage() {
-    synchronized (fullyDecodedIntermediateEphemerides) {;
+    synchronized (fullyDecodedIntermediateEphemerides) {
       GpsNavMessageProto gpsNavMessageProto = new GpsNavMessageProto();
       ArrayList<GpsEphemerisProto> gpsEphemerisProtoList = new ArrayList<>();
       for (int i = 0; i < MAX_NUMBER_OF_SATELLITES; i++) {
@@ -349,7 +350,7 @@ public class GpsNavigationMessageStore {
     gpsEphemerisProto.omega = o * POW_2_NEG_31 * Math.PI;
 
     int odot = extractBits(ODOT_INDEX, ODOT_LENGTH, rawData);
-    odot = getTwoComplement(odot, ODOT_LENGTH);;
+    odot = getTwoComplement(odot, ODOT_LENGTH);
     gpsEphemerisProto.omegaDot = o * POW_2_NEG_43 * Math.PI;
 
     short cis = (short) extractBits(CIS_INDEX, CIS_LENGTH, rawData);

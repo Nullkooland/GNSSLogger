@@ -12,6 +12,7 @@
     <string name="title_wls">WLS</string>
     <string name="title_plot">Plot</string>
 
+    <string name="log_sensor">Log Sensor</string>
     <string name="location_label">Location</string>
     <string name="measurements_label">Measurements</string>
     <string name="nav_msg_label">Navigation Messages</string>
