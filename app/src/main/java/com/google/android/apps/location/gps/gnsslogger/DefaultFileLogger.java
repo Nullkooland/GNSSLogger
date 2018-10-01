@@ -50,9 +50,9 @@ import java.util.Locale;
 /**
  * A GNSS logger to store information to a file.
  */
-public class FileLogger implements GnssListener {
+public class DefaultFileLogger implements GnssListener {
 
-    private static final String TAG = "FileLogger";
+    private static final String TAG = "DefaultFileLogger";
     private static final String FILE_PREFIX = "gnss_log";
     private static final String ERROR_WRITING_FILE = "Problem writing to file.";
     private static final String COMMENT_START = "# ";
@@ -70,12 +70,8 @@ public class FileLogger implements GnssListener {
 
     private UIFragmentComponent mUiComponent;
 
-    public FileLogger(Context context) {
+    public DefaultFileLogger(Context context) {
         mContext = context;
-    }
-
-    public synchronized UIFragmentComponent getUiComponent() {
-        return mUiComponent;
     }
 
     public synchronized void setUiComponent(UIFragmentComponent value) {
@@ -205,7 +201,7 @@ public class FileLogger implements GnssListener {
      * Send the current log via email or other options selected from a pop menu shown to the user. A
      * new log is started when calling this function.
      */
-    public void send() {
+    public void sendLog() {
         if (mFile == null) {
             return;
         }
@@ -218,7 +214,7 @@ public class FileLogger implements GnssListener {
         Uri fileURI =
                 FileProvider.getUriForFile(mContext, BuildConfig.APPLICATION_ID + ".provider", mFile);
         emailIntent.putExtra(Intent.EXTRA_STREAM, fileURI);
-        getUiComponent().startActivity(Intent.createChooser(emailIntent, "Send log.."));
+        mUiComponent.startActivity(Intent.createChooser(emailIntent, "Send log.."));
         if (mFileWriter != null) {
             try {
                 mFileWriter.flush();

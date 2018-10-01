@@ -57,14 +57,14 @@ public class AgnssFragment extends Fragment {
     public View onCreateView(
             LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View newView = inflater.inflate(R.layout.fragment_agnss, container, false /* attachToRoot */);
-        mLogView = (TextView) newView.findViewById(R.id.log_view);
-        mScrollView = (ScrollView) newView.findViewById(R.id.log_scroll);
+        mLogView = newView.findViewById(R.id.log_view);
+        mScrollView = newView.findViewById(R.id.log_scroll);
 
         if (mUiLogger != null) {
             mUiLogger.setUiFragmentComponent(mUiComponent);
         }
 
-        Button clearAgps = (Button) newView.findViewById(R.id.clearAgps);
+        Button clearAgps = newView.findViewById(R.id.clearAgps);
         clearAgps.setOnClickListener(
                 new OnClickListener() {
                     @Override
@@ -77,7 +77,7 @@ public class AgnssFragment extends Fragment {
                     }
                 });
 
-        Button fetchExtraData = (Button) newView.findViewById(R.id.fetchExtraData);
+        Button fetchExtraData = newView.findViewById(R.id.fetchExtraData);
         fetchExtraData.setOnClickListener(
                 new OnClickListener() {
                     @Override
@@ -90,7 +90,7 @@ public class AgnssFragment extends Fragment {
                     }
                 });
 
-        Button fetchTimeData = (Button) newView.findViewById(R.id.fetchTimeData);
+        Button fetchTimeData = newView.findViewById(R.id.fetchTimeData);
         fetchTimeData.setOnClickListener(
                 new OnClickListener() {
                     @Override
@@ -103,7 +103,7 @@ public class AgnssFragment extends Fragment {
                     }
                 });
 
-        Button requestSingleNlp = (Button) newView.findViewById(R.id.requestSingleNlp);
+        Button requestSingleNlp = newView.findViewById(R.id.requestSingleNlp);
         requestSingleNlp.setOnClickListener(
                 new OnClickListener() {
                     @Override
@@ -114,7 +114,7 @@ public class AgnssFragment extends Fragment {
                     }
                 });
 
-        Button requestSingleGps = (Button) newView.findViewById(R.id.requestSingleGps);
+        Button requestSingleGps = newView.findViewById(R.id.requestSingleGps);
         requestSingleGps.setOnClickListener(
                 new OnClickListener() {
                     @Override
@@ -124,7 +124,7 @@ public class AgnssFragment extends Fragment {
                         Log.i(GnssContainer.TAG + TAG, "Single GPS Location Requested");
                     }
                 });
-        Button clear = (Button) newView.findViewById(R.id.clear_log);
+        Button clear = newView.findViewById(R.id.clear_log);
         clear.setOnClickListener(
                 new OnClickListener() {
                     @Override

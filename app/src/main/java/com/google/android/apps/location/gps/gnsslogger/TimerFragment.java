@@ -51,9 +51,9 @@ public class TimerFragment extends DialogFragment {
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
 
         View view = getActivity().getLayoutInflater().inflate(R.layout.timer, null);
-        final NumberPicker timerHours = (NumberPicker) view.findViewById(R.id.hours_picker);
-        final NumberPicker timerMinutes = (NumberPicker) view.findViewById(R.id.minutes_picker);
-        final NumberPicker timerSeconds = (NumberPicker) view.findViewById(R.id.seconds_picker);
+        final NumberPicker timerHours = view.findViewById(R.id.hours_picker);
+        final NumberPicker timerMinutes = view.findViewById(R.id.minutes_picker);
+        final NumberPicker timerSeconds = view.findViewById(R.id.seconds_picker);
 
         final TimerValues values;
 

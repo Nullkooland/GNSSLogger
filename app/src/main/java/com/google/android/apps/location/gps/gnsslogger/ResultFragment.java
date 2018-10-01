@@ -27,7 +27,6 @@ import android.text.SpannableStringBuilder;
 import android.text.style.ForegroundColorSpan;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ScrollView;
@@ -51,8 +50,8 @@ public class ResultFragment extends Fragment {
     public View onCreateView(
             LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View newView = inflater.inflate(R.layout.results_log, container, false /* attachToRoot */);
-        mLogView = (TextView) newView.findViewById(R.id.log_view);
-        mScrollView = (ScrollView) newView.findViewById(R.id.log_scroll);
+        mLogView = newView.findViewById(R.id.log_view);
+        mScrollView = newView.findViewById(R.id.log_scroll);
 
         RealTimePositionVelocityCalculator currentPositionVelocityCalculator =
                 mPositionVelocityCalculator;
@@ -60,32 +59,17 @@ public class ResultFragment extends Fragment {
             currentPositionVelocityCalculator.setUiResultComponent(mUiComponent);
         }
 
-        Button start = (Button) newView.findViewById(R.id.start_log);
+        Button start = newView.findViewById(R.id.start_log);
         start.setOnClickListener(
-                new OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
-                        mScrollView.fullScroll(View.FOCUS_UP);
-                    }
-                });
+                view -> mScrollView.fullScroll(View.FOCUS_UP));
 
-        Button end = (Button) newView.findViewById(R.id.end_log);
+        Button end = newView.findViewById(R.id.end_log);
         end.setOnClickListener(
-                new OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
-                        mScrollView.fullScroll(View.FOCUS_DOWN);
-                    }
-                });
+                view -> mScrollView.fullScroll(View.FOCUS_DOWN));
 
-        Button clear = (Button) newView.findViewById(R.id.clear_log);
+        Button clear = newView.findViewById(R.id.clear_log);
         clear.setOnClickListener(
-                new OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
-                        mLogView.setText("");
-                    }
-                });
+                view -> mLogView.setText(""));
         return newView;
     }
 
@@ -112,26 +96,18 @@ public class ResultFragment extends Fragment {
                 return;
             }
             activity.runOnUiThread(
-                    new Runnable() {
-                        @Override
-                        public void run() {
-                            mLogView.append(builder);
-                            SharedPreferences sharedPreferences = PreferenceManager.
-                                    getDefaultSharedPreferences(getActivity());
-                            Editable editable = mLogView.getEditableText();
-                            int length = editable.length();
-                            if (length > MAX_LENGTH) {
-                                editable.delete(0, length - LOWER_THRESHOLD);
-                            }
-                            if (sharedPreferences.getBoolean(
-                                    SettingsFragment.PREFERENCE_KEY_AUTO_SCROLL, false /*default return value*/)) {
-                                mScrollView.post(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        mScrollView.fullScroll(View.FOCUS_DOWN);
-                                    }
-                                });
-                            }
+                    () -> {
+                        mLogView.append(builder);
+                        SharedPreferences sharedPreferences = PreferenceManager.
+                                getDefaultSharedPreferences(getActivity());
+                        Editable editable = mLogView.getEditableText();
+                        int length = editable.length();
+                        if (length > MAX_LENGTH) {
+                            editable.delete(0, length - LOWER_THRESHOLD);
+                        }
+                        if (sharedPreferences.getBoolean(
+                                SettingsFragment.PREFERENCE_KEY_AUTO_SCROLL, false /*default return value*/)) {
+                            mScrollView.post(() -> mScrollView.fullScroll(View.FOCUS_DOWN));
                         }
                     });
         }

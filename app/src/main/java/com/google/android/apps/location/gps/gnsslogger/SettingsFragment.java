@@ -28,15 +28,11 @@ import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.view.ViewGroup.LayoutParams;
 import android.view.WindowManager;
 import android.widget.Button;
-import android.widget.CompoundButton;
-import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.PopupWindow;
-import android.widget.PopupWindow.OnDismissListener;
 import android.widget.Spinner;
 import android.widget.Switch;
 import android.widget.TextView;
@@ -55,10 +51,19 @@ public class SettingsFragment extends Fragment {
      */
     protected static String PREFERENCE_KEY_AUTO_SCROLL = "autoScroll";
     /**
+     * Key in the {@link SharedPreferences} indicating whether default file logger has been enabled
+     */
+    protected static String PREFERENCE_KEY_DEFAULT_LOG = "defaultLog";
+    /**
+     * Key in the {@link SharedPreferences} indicating whether custom file logger has been enabled
+     */
+    protected static String PREFERENCE_KEY_CUSTOM_LOG = "customLog";
+    /**
      * Position in the drop down menu of the auto ground truth mode
      */
     private static int AUTO_GROUND_TRUTH_MODE = 3;
     private GnssContainer mGnssContainer;
+    private CustomFileLogger mCustomFileLogger;
     private HelpDialog helpDialog;
 
     /**
@@ -85,6 +90,10 @@ public class SettingsFragment extends Fragment {
         mGnssContainer = value;
     }
 
+    public void setAlternativeFileLogger(CustomFileLogger value) {
+        mCustomFileLogger = value;
+    }
+
     /**
      * Set up {@link MainActivity} to receive update from AR result broadcast
      */
@@ -105,6 +114,69 @@ public class SettingsFragment extends Fragment {
             LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_main, container, false /* attachToRoot */);
 
+        Switch defaultLog = view.findViewById(R.id.default_log);
+        TextView defaultLogLabel =
+                view.findViewById(R.id.default_log_label);
+        //set the switch to OFF
+        defaultLog.setChecked(false);
+        defaultLogLabel.setText("Switch is OFF");
+        defaultLog.setOnCheckedChangeListener(
+                (buttonView, isChecked) -> {
+                    SharedPreferences sharedPreferences =
+                            PreferenceManager.getDefaultSharedPreferences(getActivity());
+                    Editor editor = sharedPreferences.edit();
+                    if (isChecked) {
+                        editor.putBoolean(PREFERENCE_KEY_DEFAULT_LOG, true);
+                        editor.apply();
+                        defaultLogLabel.setText("Switch is ON");
+                    } else {
+                        editor.putBoolean(PREFERENCE_KEY_DEFAULT_LOG, false);
+                        editor.apply();
+                        defaultLogLabel.setText("Switch is OFF");
+                    }
+                });
+
+        Switch customLog = view.findViewById(R.id.custom_log);
+        TextView customLogLabel =
+                view.findViewById(R.id.custom_log_label);
+        //set the switch to OFF
+        customLog.setChecked(false);
+        customLogLabel.setText("Switch is OFF");
+        customLog.setOnCheckedChangeListener(
+                (buttonView, isChecked) -> {
+                    SharedPreferences sharedPreferences =
+                            PreferenceManager.getDefaultSharedPreferences(getActivity());
+                    Editor editor = sharedPreferences.edit();
+                    if (isChecked) {
+                        editor.putBoolean(PREFERENCE_KEY_CUSTOM_LOG, true);
+                        editor.apply();
+                        mCustomFileLogger.registerOrientationSensorListener();
+                        customLogLabel.setText("Switch is ON");
+                    } else {
+                        editor.putBoolean(PREFERENCE_KEY_CUSTOM_LOG, true);
+                        editor.apply();
+                        mCustomFileLogger.unregisterOrientationSensorListener();
+                        customLogLabel.setText("Switch is OFF");
+                    }
+                });
+
+        Switch gpsOnly = view.findViewById(R.id.gps_only);
+        TextView gpsOnlyLabel = view.findViewById(R.id.gps_only_label);
+        //set the switch to OFF
+        gpsOnly.setChecked(false);
+        gpsOnlyLabel.setText("Switch is OFF");
+        gpsOnly.setOnCheckedChangeListener(
+                (buttonView, isChecked) -> {
+
+                    if (isChecked) {
+                        mGnssContainer.setGpsOnly(true);
+                        gpsOnlyLabel.setText("Switch is ON");
+                    } else {
+                        mGnssContainer.setGpsOnly(false);
+                        gpsOnlyLabel.setText("Switch is OFF");
+                    }
+                });
+
         Switch registerLocation = view.findViewById(R.id.register_location);
         TextView registerLocationLabel =
                 view.findViewById(R.id.register_location_label);
@@ -112,18 +184,14 @@ public class SettingsFragment extends Fragment {
         registerLocation.setChecked(false);
         registerLocationLabel.setText("Switch is OFF");
         registerLocation.setOnCheckedChangeListener(
-                new OnCheckedChangeListener() {
+                (buttonView, isChecked) -> {
 
-                    @Override
-                    public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-
-                        if (isChecked) {
-                            mGnssContainer.registerLocation();
-                            registerLocationLabel.setText("Switch is ON");
-                        } else {
-                            mGnssContainer.unregisterLocation();
-                            registerLocationLabel.setText("Switch is OFF");
-                        }
+                    if (isChecked) {
+                        mGnssContainer.registerLocation();
+                        registerLocationLabel.setText("Switch is ON");
+                    } else {
+                        mGnssContainer.unregisterLocation();
+                        registerLocationLabel.setText("Switch is OFF");
                     }
                 });
 
@@ -134,18 +202,14 @@ public class SettingsFragment extends Fragment {
         registerMeasurements.setChecked(false);
         registerMeasurementsLabel.setText("Switch is OFF");
         registerMeasurements.setOnCheckedChangeListener(
-                new OnCheckedChangeListener() {
+                (buttonView, isChecked) -> {
 
-                    @Override
-                    public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-
-                        if (isChecked) {
-                            mGnssContainer.registerMeasurements();
-                            registerMeasurementsLabel.setText("Switch is ON");
-                        } else {
-                            mGnssContainer.unregisterMeasurements();
-                            registerMeasurementsLabel.setText("Switch is OFF");
-                        }
+                    if (isChecked) {
+                        mGnssContainer.registerMeasurements();
+                        registerMeasurementsLabel.setText("Switch is ON");
+                    } else {
+                        mGnssContainer.unregisterMeasurements();
+                        registerMeasurementsLabel.setText("Switch is OFF");
                     }
                 });
 
@@ -156,18 +220,14 @@ public class SettingsFragment extends Fragment {
         registerNavigation.setChecked(false);
         registerNavigationLabel.setText("Switch is OFF");
         registerNavigation.setOnCheckedChangeListener(
-                new OnCheckedChangeListener() {
+                (buttonView, isChecked) -> {
 
-                    @Override
-                    public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-
-                        if (isChecked) {
-                            mGnssContainer.registerNavigation();
-                            registerNavigationLabel.setText("Switch is ON");
-                        } else {
-                            mGnssContainer.unregisterNavigation();
-                            registerNavigationLabel.setText("Switch is OFF");
-                        }
+                    if (isChecked) {
+                        mGnssContainer.registerNavigation();
+                        registerNavigationLabel.setText("Switch is ON");
+                    } else {
+                        mGnssContainer.unregisterNavigation();
+                        registerNavigationLabel.setText("Switch is OFF");
                     }
                 });
 
@@ -178,18 +238,14 @@ public class SettingsFragment extends Fragment {
         registerGpsStatus.setChecked(false);
         registerGpsStatusLabel.setText("Switch is OFF");
         registerGpsStatus.setOnCheckedChangeListener(
-                new OnCheckedChangeListener() {
+                (buttonView, isChecked) -> {
 
-                    @Override
-                    public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-
-                        if (isChecked) {
-                            mGnssContainer.registerGnssStatus();
-                            registerGpsStatusLabel.setText("Switch is ON");
-                        } else {
-                            mGnssContainer.unregisterGpsStatus();
-                            registerGpsStatusLabel.setText("Switch is OFF");
-                        }
+                    if (isChecked) {
+                        mGnssContainer.registerGnssStatus();
+                        registerGpsStatusLabel.setText("Switch is ON");
+                    } else {
+                        mGnssContainer.unregisterGpsStatus();
+                        registerGpsStatusLabel.setText("Switch is OFF");
                     }
                 });
 
@@ -199,39 +255,14 @@ public class SettingsFragment extends Fragment {
         registerNmea.setChecked(false);
         registerNmeaLabel.setText("Switch is OFF");
         registerNmea.setOnCheckedChangeListener(
-                new OnCheckedChangeListener() {
+                (buttonView, isChecked) -> {
 
-                    @Override
-                    public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-
-                        if (isChecked) {
-                            mGnssContainer.registerNmea();
-                            registerNmeaLabel.setText("Switch is ON");
-                        } else {
-                            mGnssContainer.unregisterNmea();
-                            registerNmeaLabel.setText("Switch is OFF");
-                        }
-                    }
-                });
-
-        Switch gpsOnly = view.findViewById(R.id.gps_only);
-        TextView gpsOnlyLabel = view.findViewById(R.id.gps_only_label);
-        //set the switch to OFF
-        gpsOnly.setChecked(false);
-        gpsOnlyLabel.setText("Switch is OFF");
-        gpsOnly.setOnCheckedChangeListener(
-                new OnCheckedChangeListener() {
-
-                    @Override
-                    public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-
-                        if (isChecked) {
-                            mGnssContainer.setGpsOnly(true);
-                            gpsOnlyLabel.setText("Switch is ON");
-                        } else {
-                            mGnssContainer.setGpsOnly(false);
-                            gpsOnlyLabel.setText("Switch is OFF");
-                        }
+                    if (isChecked) {
+                        mGnssContainer.registerNmea();
+                        registerNmeaLabel.setText("Switch is ON");
+                    } else {
+                        mGnssContainer.unregisterNmea();
+                        registerNmeaLabel.setText("Switch is OFF");
                     }
                 });
 
@@ -239,21 +270,18 @@ public class SettingsFragment extends Fragment {
         TextView turnOnAutoScroll = view.findViewById(R.id.turn_on_auto_scroll);
         turnOnAutoScroll.setText("Switch is OFF");
         autoScroll.setOnCheckedChangeListener(
-                new OnCheckedChangeListener() {
-                    @Override
-                    public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                        SharedPreferences sharedPreferences =
-                                PreferenceManager.getDefaultSharedPreferences(getActivity());
-                        Editor editor = sharedPreferences.edit();
-                        if (isChecked) {
-                            editor.putBoolean(PREFERENCE_KEY_AUTO_SCROLL, true);
-                            editor.apply();
-                            turnOnAutoScroll.setText("Switch is ON");
-                        } else {
-                            editor.putBoolean(PREFERENCE_KEY_AUTO_SCROLL, false);
-                            editor.apply();
-                            turnOnAutoScroll.setText("Switch is OFF");
-                        }
+                (buttonView, isChecked) -> {
+                    SharedPreferences sharedPreferences =
+                            PreferenceManager.getDefaultSharedPreferences(getActivity());
+                    Editor editor = sharedPreferences.edit();
+                    if (isChecked) {
+                        editor.putBoolean(PREFERENCE_KEY_AUTO_SCROLL, true);
+                        editor.apply();
+                        turnOnAutoScroll.setText("Switch is ON");
+                    } else {
+                        editor.putBoolean(PREFERENCE_KEY_AUTO_SCROLL, false);
+                        editor.apply();
+                        turnOnAutoScroll.setText("Switch is OFF");
                     }
                 });
 
@@ -261,107 +289,93 @@ public class SettingsFragment extends Fragment {
         TextView turnOnResidual = view.findViewById(R.id.turn_on_residual_plot);
         turnOnResidual.setText("Switch is OFF");
         residualPlotSwitch.setOnCheckedChangeListener(
-                new OnCheckedChangeListener() {
-                    @Override
-                    public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                        if (isChecked) {
+                (buttonView, isChecked) -> {
+                    if (isChecked) {
 
-                            LayoutInflater inflater =
-                                    (LayoutInflater)
-                                            getActivity().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-                            View layout = inflater.inflate(R.layout.pop_up_window,
-                                    getActivity().findViewById(R.id.pop));
+                        LayoutInflater inflater1 =
+                                (LayoutInflater)
+                                        getActivity().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+                        View layout = inflater1.inflate(R.layout.pop_up_window,
+                                getActivity().findViewById(R.id.pop));
 
-                            // Find UI elements in pop up window
-                            Spinner residualSpinner = layout.findViewById(R.id.residual_spinner);
-                            Button buttonOk = layout.findViewById(R.id.popup_button_ok);
-                            Button buttonCancel = layout.findViewById(R.id.popup_button_cancel);
-                            TextView longitudeInput = layout.findViewById(R.id.longitude_input);
-                            TextView latitudeInput = layout.findViewById(R.id.latitude_input);
-                            TextView altitudeInput = layout.findViewById(R.id.altitude_input);
+                        // Find UI elements in pop up window
+                        Spinner residualSpinner = layout.findViewById(R.id.residual_spinner);
+                        Button buttonOk = layout.findViewById(R.id.popup_button_ok);
+                        Button buttonCancel = layout.findViewById(R.id.popup_button_cancel);
+                        TextView longitudeInput = layout.findViewById(R.id.longitude_input);
+                        TextView latitudeInput = layout.findViewById(R.id.latitude_input);
+                        TextView altitudeInput = layout.findViewById(R.id.altitude_input);
 
-                            // Set up pop up window attributes
-                            PopupWindow popupWindow =
-                                    new PopupWindow(layout, LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
-                            popupWindow.setOutsideTouchable(false);
-                            popupWindow.showAtLocation(
-                                    view.findViewById(R.id.setting_root), Gravity.CENTER, 0, 0);
-                            View container = (View) popupWindow.getContentView().getParent();
-                            WindowManager wm =
-                                    (WindowManager) getActivity().getSystemService(Context.WINDOW_SERVICE);
-                            WindowManager.LayoutParams params =
-                                    (WindowManager.LayoutParams) container.getLayoutParams();
-                            params.flags = WindowManager.LayoutParams.FLAG_DIM_BEHIND;
-                            params.dimAmount = 0.5f;
-                            wm.updateViewLayout(container, params);
-                            mResidualSetting = RealTimePositionVelocityCalculator.RESIDUAL_MODE_DISABLED;
-                            // When the window is dismissed same as cancel
-                            popupWindow.setOnDismissListener(
-                                    new OnDismissListener() {
-                                        @Override
-                                        public void onDismiss() {
-                                            if (mResidualSetting
-                                                    == RealTimePositionVelocityCalculator.RESIDUAL_MODE_DISABLED) {
-                                                residualPlotSwitch.setChecked(false);
-                                            } else {
-                                                mRealTimePositionVelocityCalculator
-                                                        .setResidualPlotMode
-                                                                (mResidualSetting,
-                                                                        mFixedReferenceLocation);
-                                                turnOnResidual.setText("Switch is ON");
-                                            }
-                                        }
+                        // Set up pop up window attributes
+                        PopupWindow popupWindow =
+                                new PopupWindow(layout, LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
+                        popupWindow.setOutsideTouchable(false);
+                        popupWindow.showAtLocation(
+                                view.findViewById(R.id.setting_root), Gravity.CENTER, 0, 0);
+                        View container1 = (View) popupWindow.getContentView().getParent();
+                        WindowManager wm =
+                                (WindowManager) getActivity().getSystemService(Context.WINDOW_SERVICE);
+                        WindowManager.LayoutParams params =
+                                (WindowManager.LayoutParams) container1.getLayoutParams();
+                        params.flags = WindowManager.LayoutParams.FLAG_DIM_BEHIND;
+                        params.dimAmount = 0.5f;
+                        wm.updateViewLayout(container1, params);
+                        mResidualSetting = RealTimePositionVelocityCalculator.RESIDUAL_MODE_DISABLED;
+                        // When the window is dismissed same as cancel
+                        popupWindow.setOnDismissListener(
+                                () -> {
+                                    if (mResidualSetting
+                                            == RealTimePositionVelocityCalculator.RESIDUAL_MODE_DISABLED) {
+                                        residualPlotSwitch.setChecked(false);
+                                    } else {
+                                        mRealTimePositionVelocityCalculator
+                                                .setResidualPlotMode
+                                                        (mResidualSetting,
+                                                                mFixedReferenceLocation);
+                                        turnOnResidual.setText("Switch is ON");
                                     }
-                            );
+                                }
+                        );
 
-                            buttonCancel.setOnClickListener(
-                                    new OnClickListener() {
-                                        @Override
-                                        public void onClick(View v) {
-                                            popupWindow.dismiss();
-                                        }
+                        buttonCancel.setOnClickListener(
+                                v -> popupWindow.dismiss()
+                        );
+
+                        // Button handler to dismiss the window and store settings
+                        buttonOk.setOnClickListener(
+                                v -> {
+                                    double longitudeDegrees =
+                                            longitudeInput.getText().toString().equals("")
+                                                    ? Double.NaN
+                                                    : Double.parseDouble(longitudeInput.getText().toString());
+                                    double latitudeDegrees =
+                                            latitudeInput.getText().toString().equals("")
+                                                    ? Double.NaN
+                                                    : Double.parseDouble(latitudeInput.getText().toString());
+                                    double altitudeMeters =
+                                            altitudeInput.getText().toString().equals("")
+                                                    ? Double.NaN
+                                                    : Double.parseDouble(altitudeInput.getText().toString());
+                                    mFixedReferenceLocation =
+                                            new double[]{latitudeDegrees, longitudeDegrees, altitudeMeters};
+                                    mResidualSetting = residualSpinner.getSelectedItemPosition();
+
+                                    // If user select auto, we need to put moving first and turn on AR updates
+                                    if (mResidualSetting == AUTO_GROUND_TRUTH_MODE) {
+                                        mResidualSetting
+                                                = RealTimePositionVelocityCalculator.RESIDUAL_MODE_MOVING;
+                                        mModeSwitcher.setAutoSwitchGroundTruthModeEnabled(true);
                                     }
-                            );
+                                    popupWindow.dismiss();
+                                }
+                        );
 
-                            // Button handler to dismiss the window and store settings
-                            buttonOk.setOnClickListener(
-                                    new OnClickListener() {
-                                        @Override
-                                        public void onClick(View v) {
-                                            double longitudeDegrees =
-                                                    longitudeInput.getText().toString().equals("")
-                                                            ? Double.NaN
-                                                            : Double.parseDouble(longitudeInput.getText().toString());
-                                            double latitudeDegrees =
-                                                    latitudeInput.getText().toString().equals("")
-                                                            ? Double.NaN
-                                                            : Double.parseDouble(latitudeInput.getText().toString());
-                                            double altitudeMeters =
-                                                    altitudeInput.getText().toString().equals("")
-                                                            ? Double.NaN
-                                                            : Double.parseDouble(altitudeInput.getText().toString());
-                                            mFixedReferenceLocation =
-                                                    new double[]{latitudeDegrees, longitudeDegrees, altitudeMeters};
-                                            mResidualSetting = residualSpinner.getSelectedItemPosition();
-
-                                            // If user select auto, we need to put moving first and turn on AR updates
-                                            if (mResidualSetting == AUTO_GROUND_TRUTH_MODE) {
-                                                mResidualSetting
-                                                        = RealTimePositionVelocityCalculator.RESIDUAL_MODE_MOVING;
-                                                mModeSwitcher.setAutoSwitchGroundTruthModeEnabled(true);
-                                            }
-                                            popupWindow.dismiss();
-                                        }
-                                    }
-                            );
-
-                        } else {
-                            mModeSwitcher.setAutoSwitchGroundTruthModeEnabled(false);
-                            mRealTimePositionVelocityCalculator.setResidualPlotMode(
-                                    RealTimePositionVelocityCalculator.RESIDUAL_MODE_DISABLED,
-                                    mFixedReferenceLocation);
-                            turnOnResidual.setText("Switch is OFF");
-                        }
+                    } else {
+                        mModeSwitcher.setAutoSwitchGroundTruthModeEnabled(false);
+                        mRealTimePositionVelocityCalculator.setResidualPlotMode(
+                                RealTimePositionVelocityCalculator.RESIDUAL_MODE_DISABLED,
+                                mFixedReferenceLocation);
+                        turnOnResidual.setText("Switch is OFF");
                     }
                 }
         );
@@ -371,21 +385,11 @@ public class SettingsFragment extends Fragment {
         helpDialog.create();
 
         help.setOnClickListener(
-                new OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
-                        helpDialog.show();
-                    }
-                });
+                view1 -> helpDialog.show());
 
         Button exit = view.findViewById(R.id.exit);
         exit.setOnClickListener(
-                new OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
-                        getActivity().finishAffinity();
-                    }
-                });
+                view12 -> getActivity().finishAffinity());
 
         TextView swInfo = view.findViewById(R.id.sw_info);
 
@@ -411,10 +415,8 @@ public class SettingsFragment extends Fragment {
             return null;
         }
 
-        String platfromVersionString = Build.VERSION.RELEASE;
-        swInfo.append("Platform: " + platfromVersionString + "\n");
-        int apiLivelInt = Build.VERSION.SDK_INT;
-        swInfo.append("Api Level: " + apiLivelInt);
+        swInfo.append("Platform: " + Build.VERSION.RELEASE + "\n");
+        swInfo.append("Api Level: " + Build.VERSION.SDK_INT);
 
         return view;
     }

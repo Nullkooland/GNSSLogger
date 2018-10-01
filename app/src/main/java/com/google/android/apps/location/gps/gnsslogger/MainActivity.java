@@ -78,7 +78,8 @@ public class MainActivity extends AppCompatActivity
     private GnssContainer mGnssContainer;
     private UiLogger mUiLogger;
     private RealTimePositionVelocityCalculator mRealTimePositionVelocityCalculator;
-    private FileLogger mFileLogger;
+    private DefaultFileLogger mDefaultFileLogger;
+    private CustomFileLogger mCustomFileLogger;
     private AgnssUiLogger mAgnssUiLogger;
     private Fragment[] mFragments;
     private GoogleApiClient mGoogleApiClient;
@@ -136,6 +137,8 @@ public class MainActivity extends AppCompatActivity
                 getDefaultSharedPreferences(this);
         SharedPreferences.Editor editor = sharedPreferences.edit();
         editor.putBoolean(SettingsFragment.PREFERENCE_KEY_AUTO_SCROLL, false);
+        editor.putBoolean(SettingsFragment.PREFERENCE_KEY_DEFAULT_LOG, false);
+        editor.putBoolean(SettingsFragment.PREFERENCE_KEY_CUSTOM_LOG, false);
         editor.commit();
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
@@ -199,25 +202,29 @@ public class MainActivity extends AppCompatActivity
         mRealTimePositionVelocityCalculator.setResidualPlotMode(
                 RealTimePositionVelocityCalculator.RESIDUAL_MODE_DISABLED, null /* fixedGroundTruth */);
 
-        mFileLogger = new FileLogger(getApplicationContext());
+        mDefaultFileLogger = new DefaultFileLogger(getApplicationContext());
+        mCustomFileLogger = new CustomFileLogger(getApplicationContext());
         mAgnssUiLogger = new AgnssUiLogger();
         mGnssContainer =
                 new GnssContainer(
                         getApplicationContext(),
                         mUiLogger,
-                        mFileLogger,
+                        mCustomFileLogger,
+                        mDefaultFileLogger,
                         mRealTimePositionVelocityCalculator,
                         mAgnssUiLogger);
         mFragments = new Fragment[NUMBER_OF_FRAGMENTS];
         SettingsFragment settingsFragment = new SettingsFragment();
         settingsFragment.setGnssContainer(mGnssContainer);
+        settingsFragment.setAlternativeFileLogger(mCustomFileLogger);
         settingsFragment.setRealTimePositionVelocityCalculator(mRealTimePositionVelocityCalculator);
         settingsFragment.setAutoModeSwitcher(this);
         mFragments[FRAGMENT_INDEX_SETTING] = settingsFragment;
 
         LoggerFragment loggerFragment = new LoggerFragment();
         loggerFragment.setUILogger(mUiLogger);
-        loggerFragment.setFileLogger(mFileLogger);
+        loggerFragment.setFileLogger(mDefaultFileLogger);
+        loggerFragment.setAlternativeFileLogger(mCustomFileLogger);
         mFragments[FRAGMENT_INDEX_LOGGER] = loggerFragment;
 
         ResultFragment resultFragment = new ResultFragment();

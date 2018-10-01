@@ -120,7 +120,7 @@ public class TimerService extends Service {
          *
          * @param values The set {@link TimerValues}
          */
-        public void processTimerValues(TimerValues values);
+        void processTimerValues(TimerValues values);
     }
 
     /**

@@ -26,6 +26,7 @@ import android.location.LocationManager;
 import android.location.OnNmeaMessageListener;
 import android.os.Bundle;
 import android.os.SystemClock;
+
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -37,7 +38,7 @@ public class GnssContainer {
 
   public static final String TAG = "GnssLogger";
 
-  private static final long LOCATION_RATE_GPS_MS = TimeUnit.SECONDS.toMillis(1L);
+    private static final long LOCATION_RATE_GPS_MS = 1000;
   private static final long LOCATION_RATE_NETWORK_MS = TimeUnit.SECONDS.toMillis(60L);
 
   private boolean mLogLocations = true;
@@ -240,11 +241,13 @@ public class GnssContainer {
   public void registerLocation() {
     boolean isGpsProviderEnabled = mLocationManager.isProviderEnabled(LocationManager.GPS_PROVIDER);
     if (isGpsProviderEnabled) {
+        /*
       mLocationManager.requestLocationUpdates(
           LocationManager.NETWORK_PROVIDER,
           LOCATION_RATE_NETWORK_MS,
-          0.0f /* minDistance */,
+          0.0f ,
           mLocationListener);
+      */
       mLocationManager.requestLocationUpdates(
           LocationManager.GPS_PROVIDER,
           LOCATION_RATE_GPS_MS,
