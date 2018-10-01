@@ -50,9 +50,9 @@ import java.util.Locale;
 /**
  * A GNSS logger to store information to a file.
  */
-public class FileLogger implements GnssListener {
+public class DefaultFileLogger implements GnssListener {
 
-    private static final String TAG = "FileLogger";
+    private static final String TAG = "DefaultFileLogger";
     private static final String FILE_PREFIX = "gnss_log";
     private static final String ERROR_WRITING_FILE = "Problem writing to file.";
     private static final String COMMENT_START = "# ";
@@ -70,7 +70,7 @@ public class FileLogger implements GnssListener {
 
     private UIFragmentComponent mUiComponent;
 
-    public FileLogger(Context context) {
+    public DefaultFileLogger(Context context) {
         mContext = context;
     }
 

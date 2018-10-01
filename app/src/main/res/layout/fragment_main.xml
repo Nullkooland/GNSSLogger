@@ -16,7 +16,7 @@
         android:orientation="horizontal">
 
         <TextView
-            android:id="@+id/log_sensor_label"
+            android:id="@+id/default_log_label"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginTop="15dp"
@@ -24,13 +24,59 @@
             android:textStyle="bold" />
 
         <Switch
-            android:id="@+id/log_sensor"
+            android:id="@+id/default_log"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginTop="15dp"
             android:layout_weight="1"
             android:singleLine="true"
-            android:text="@string/log_sensor" />
+            android:text="@string/default_log" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <TextView
+            android:id="@+id/custom_log_label"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="15dp"
+            android:layout_weight="1"
+            android:textStyle="bold" />
+
+        <Switch
+            android:id="@+id/custom_log"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="15dp"
+            android:layout_weight="1"
+            android:singleLine="true"
+            android:text="@string/custom_log" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <TextView
+            android:id="@+id/gps_only_label"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="15dp"
+            android:layout_weight="1"
+            android:textStyle="bold" />
+
+        <Switch
+            android:id="@+id/gps_only"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="15dp"
+            android:layout_weight="1"
+            android:singleLine="true"
+            android:text="@string/gps_only" />
     </LinearLayout>
 
     <LinearLayout
@@ -147,29 +193,6 @@
             android:layout_weight="1"
             android:singleLine="true"
             android:text="@string/nmea_label" />
-    </LinearLayout>
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal">
-
-        <TextView
-            android:id="@+id/gps_only_label"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="15dp"
-            android:layout_weight="1"
-            android:textStyle="bold" />
-
-        <Switch
-            android:id="@+id/gps_only"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="15dp"
-            android:layout_weight="1"
-            android:singleLine="true"
-            android:text="@string/gps_only" />
     </LinearLayout>
 
     <LinearLayout

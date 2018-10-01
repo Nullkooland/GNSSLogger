@@ -28,9 +28,9 @@ import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-public class AlternativeFileLogger implements GnssListener {
+public class CustomFileLogger implements GnssListener {
 
-    private static final String TAG = "AlternativeFileLogger";
+    private static final String TAG = "CustomFileLogger";
     private static final String DIR_NAME = "gnss_log";
     private static final String FILE_PREFIX = "custom_log";
     private static final String COMMENT_START = "# ";
@@ -72,7 +72,7 @@ public class AlternativeFileLogger implements GnssListener {
         }
     };
 
-    public AlternativeFileLogger(Context context) {
+    public CustomFileLogger(Context context) {
         mContext = context;
         mSensorManager = (SensorManager) mContext.getSystemService(Context.SENSOR_SERVICE);
     }
@@ -162,7 +162,7 @@ public class AlternativeFileLogger implements GnssListener {
                 currentFileWriter.newLine();
                 currentFileWriter.write(COMMENT_START);
                 currentFileWriter.write(
-                        "ElapsedRealtimeMillis,UtcTimeMillis,Svid,Cn0DbHz,angleX,angleY,angleZ");
+                        "ElapsedRealtimeMillis,UtcTimeMillis,Svid,Cn0DbHz,angleZ,angleX,angleY");
                 currentFileWriter.newLine();
                 currentFileWriter.write(COMMENT_START);
                 currentFileWriter.newLine();

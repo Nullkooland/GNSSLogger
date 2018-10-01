@@ -12,7 +12,9 @@
     <string name="title_wls">WLS</string>
     <string name="title_plot">Plot</string>
 
-    <string name="log_sensor">Log Sensor</string>
+    <string name="default_log">Default Log Format</string>
+    <string name="custom_log">Custom Log Format</string>
+    <string name="gps_only">GPS Only</string>
     <string name="location_label">Location</string>
     <string name="measurements_label">Measurements</string>
     <string name="nav_msg_label">Navigation Messages</string>
@@ -20,7 +22,6 @@
     <string name="nmea_label">Nmea</string>
     <string name="auto_scroll">Auto Scroll</string>
     <string name="residual_plot">Residual Plot</string>
-    <string name="gps_only">GPS Only</string>
 
     <string name="help">HELP</string>
     <string name="exit">Exit</string>
@@ -31,7 +32,7 @@
     <string name="requestSingleGps">Get GPS Loc.</string>
     <string name="ttff">TTFF</string>
 
-    <string name="timer_service_name">GNSS Logger timer</string>
+    <string name="timer_service_name">GNSS Logger Timer</string>
     <string name="timer_title">Timer Settings</string>
     <string name="timer_hours">Hours</string>
     <string name="timer_minutes">Minutes</string>

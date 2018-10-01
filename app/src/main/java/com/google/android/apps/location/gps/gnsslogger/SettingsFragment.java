@@ -32,8 +32,6 @@ import android.view.ViewGroup;
 import android.view.ViewGroup.LayoutParams;
 import android.view.WindowManager;
 import android.widget.Button;
-import android.widget.CompoundButton;
-import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.PopupWindow;
 import android.widget.Spinner;
 import android.widget.Switch;
@@ -53,11 +51,19 @@ public class SettingsFragment extends Fragment {
      */
     protected static String PREFERENCE_KEY_AUTO_SCROLL = "autoScroll";
     /**
+     * Key in the {@link SharedPreferences} indicating whether default file logger has been enabled
+     */
+    protected static String PREFERENCE_KEY_DEFAULT_LOG = "defaultLog";
+    /**
+     * Key in the {@link SharedPreferences} indicating whether custom file logger has been enabled
+     */
+    protected static String PREFERENCE_KEY_CUSTOM_LOG = "customLog";
+    /**
      * Position in the drop down menu of the auto ground truth mode
      */
     private static int AUTO_GROUND_TRUTH_MODE = 3;
     private GnssContainer mGnssContainer;
-    private AlternativeFileLogger mAlternativeFileLogger;
+    private CustomFileLogger mCustomFileLogger;
     private HelpDialog helpDialog;
 
     /**
@@ -84,8 +90,8 @@ public class SettingsFragment extends Fragment {
         mGnssContainer = value;
     }
 
-    public void setAlternativeFileLogger(AlternativeFileLogger value) {
-        mAlternativeFileLogger = value;
+    public void setAlternativeFileLogger(CustomFileLogger value) {
+        mCustomFileLogger = value;
     }
 
     /**
@@ -108,20 +114,66 @@ public class SettingsFragment extends Fragment {
             LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_main, container, false /* attachToRoot */);
 
-        Switch logSensor = view.findViewById(R.id.log_sensor);
-        TextView logSensorLabel =
-                view.findViewById(R.id.log_sensor_label);
+        Switch defaultLog = view.findViewById(R.id.default_log);
+        TextView defaultLogLabel =
+                view.findViewById(R.id.default_log_label);
         //set the switch to OFF
-        logSensor.setChecked(false);
-        logSensorLabel.setText("Switch is OFF");
-        logSensor.setOnCheckedChangeListener(
+        defaultLog.setChecked(false);
+        defaultLogLabel.setText("Switch is OFF");
+        defaultLog.setOnCheckedChangeListener(
                 (buttonView, isChecked) -> {
+                    SharedPreferences sharedPreferences =
+                            PreferenceManager.getDefaultSharedPreferences(getActivity());
+                    Editor editor = sharedPreferences.edit();
                     if (isChecked) {
-                        mAlternativeFileLogger.registerOrientationSensorListener();
-                        logSensorLabel.setText("Switch is ON");
+                        editor.putBoolean(PREFERENCE_KEY_DEFAULT_LOG, true);
+                        editor.apply();
+                        defaultLogLabel.setText("Switch is ON");
                     } else {
-                        mAlternativeFileLogger.unregisterOrientationSensorListener();
-                        logSensorLabel.setText("Switch is OFF");
+                        editor.putBoolean(PREFERENCE_KEY_DEFAULT_LOG, false);
+                        editor.apply();
+                        defaultLogLabel.setText("Switch is OFF");
+                    }
+                });
+
+        Switch customLog = view.findViewById(R.id.custom_log);
+        TextView customLogLabel =
+                view.findViewById(R.id.custom_log_label);
+        //set the switch to OFF
+        customLog.setChecked(false);
+        customLogLabel.setText("Switch is OFF");
+        customLog.setOnCheckedChangeListener(
+                (buttonView, isChecked) -> {
+                    SharedPreferences sharedPreferences =
+                            PreferenceManager.getDefaultSharedPreferences(getActivity());
+                    Editor editor = sharedPreferences.edit();
+                    if (isChecked) {
+                        editor.putBoolean(PREFERENCE_KEY_CUSTOM_LOG, true);
+                        editor.apply();
+                        mCustomFileLogger.registerOrientationSensorListener();
+                        customLogLabel.setText("Switch is ON");
+                    } else {
+                        editor.putBoolean(PREFERENCE_KEY_CUSTOM_LOG, true);
+                        editor.apply();
+                        mCustomFileLogger.unregisterOrientationSensorListener();
+                        customLogLabel.setText("Switch is OFF");
+                    }
+                });
+
+        Switch gpsOnly = view.findViewById(R.id.gps_only);
+        TextView gpsOnlyLabel = view.findViewById(R.id.gps_only_label);
+        //set the switch to OFF
+        gpsOnly.setChecked(false);
+        gpsOnlyLabel.setText("Switch is OFF");
+        gpsOnly.setOnCheckedChangeListener(
+                (buttonView, isChecked) -> {
+
+                    if (isChecked) {
+                        mGnssContainer.setGpsOnly(true);
+                        gpsOnlyLabel.setText("Switch is ON");
+                    } else {
+                        mGnssContainer.setGpsOnly(false);
+                        gpsOnlyLabel.setText("Switch is OFF");
                     }
                 });
 
@@ -168,18 +220,14 @@ public class SettingsFragment extends Fragment {
         registerNavigation.setChecked(false);
         registerNavigationLabel.setText("Switch is OFF");
         registerNavigation.setOnCheckedChangeListener(
-                new OnCheckedChangeListener() {
+                (buttonView, isChecked) -> {
 
-                    @Override
-                    public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-
-                        if (isChecked) {
-                            mGnssContainer.registerNavigation();
-                            registerNavigationLabel.setText("Switch is ON");
-                        } else {
-                            mGnssContainer.unregisterNavigation();
-                            registerNavigationLabel.setText("Switch is OFF");
-                        }
+                    if (isChecked) {
+                        mGnssContainer.registerNavigation();
+                        registerNavigationLabel.setText("Switch is ON");
+                    } else {
+                        mGnssContainer.unregisterNavigation();
+                        registerNavigationLabel.setText("Switch is OFF");
                     }
                 });
 
@@ -215,23 +263,6 @@ public class SettingsFragment extends Fragment {
                     } else {
                         mGnssContainer.unregisterNmea();
                         registerNmeaLabel.setText("Switch is OFF");
-                    }
-                });
-
-        Switch gpsOnly = view.findViewById(R.id.gps_only);
-        TextView gpsOnlyLabel = view.findViewById(R.id.gps_only_label);
-        //set the switch to OFF
-        gpsOnly.setChecked(false);
-        gpsOnlyLabel.setText("Switch is OFF");
-        gpsOnly.setOnCheckedChangeListener(
-                (buttonView, isChecked) -> {
-
-                    if (isChecked) {
-                        mGnssContainer.setGpsOnly(true);
-                        gpsOnlyLabel.setText("Switch is ON");
-                    } else {
-                        mGnssContainer.setGpsOnly(false);
-                        gpsOnlyLabel.setText("Switch is OFF");
                     }
                 });
 

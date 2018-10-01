@@ -51,13 +51,13 @@ import static com.google.common.base.Preconditions.checkArgument;
  */
 public class LoggerFragment extends Fragment implements TimerListener {
     private static final String TIMER_FRAGMENT_TAG = "timer";
-    private static boolean autoScroll = false;
     private final UIFragmentComponent mUiComponent = new UIFragmentComponent();
     private TextView mLogView;
     private ScrollView mScrollView;
-    private FileLogger mFileLogger;
-    private AlternativeFileLogger mAlternativeFileLogger;
+    private DefaultFileLogger mDefaultFileLogger;
+    private CustomFileLogger mCustomFileLogger;
     private UiLogger mUiLogger;
+
     private Button mStartLog;
     private Button mTimer;
     private Button mSendFile;
@@ -109,12 +109,12 @@ public class LoggerFragment extends Fragment implements TimerListener {
         mUiLogger = value;
     }
 
-    public void setFileLogger(FileLogger value) {
-        mFileLogger = value;
+    public void setFileLogger(DefaultFileLogger value) {
+        mDefaultFileLogger = value;
     }
 
-    public void setAlternativeFileLogger(AlternativeFileLogger value) {
-        mAlternativeFileLogger = value;
+    public void setAlternativeFileLogger(CustomFileLogger value) {
+        mCustomFileLogger = value;
     }
 
     @Override
@@ -146,14 +146,13 @@ public class LoggerFragment extends Fragment implements TimerListener {
         if (currentUiLogger != null) {
             currentUiLogger.setUiFragmentComponent(mUiComponent);
         }
-        //FileLogger currentFileLogger = mFileLogger;
 
-        //if (mFileLogger != null) {
-        //    mFileLogger.setUiComponent(mUiComponent);
-        //}
+        if (mDefaultFileLogger != null) {
+            mDefaultFileLogger.setUiComponent(mUiComponent);
+        }
 
-        if (mAlternativeFileLogger != null) {
-            mAlternativeFileLogger.setUiComponent(mUiComponent);
+        if (mCustomFileLogger != null) {
+            mCustomFileLogger.setUiComponent(mUiComponent);
         }
 
         Button start = newView.findViewById(R.id.start_log);
@@ -198,8 +197,18 @@ public class LoggerFragment extends Fragment implements TimerListener {
                     public void onClick(View view) {
                         enableOptions(false /* start */);
                         Toast.makeText(getContext(), R.string.start_message, Toast.LENGTH_LONG).show();
-                        //mFileLogger.startNewLog();
-                        mAlternativeFileLogger.startNewLog();
+                        SharedPreferences sharedPreferences = PreferenceManager.
+                                getDefaultSharedPreferences(getActivity());
+
+                        if (sharedPreferences.getBoolean(
+                                SettingsFragment.PREFERENCE_KEY_DEFAULT_LOG, false /*default return value*/)) {
+                            mDefaultFileLogger.startNewLog();
+                        }
+
+                        if (sharedPreferences.getBoolean(
+                                SettingsFragment.PREFERENCE_KEY_CUSTOM_LOG, false /*default return value*/)) {
+                            mCustomFileLogger.startNewLog();
+                        }
 
                         if (!mTimerValues.isZero() && (mTimerService != null)) {
                             mTimerService.startTimer();
@@ -233,8 +242,19 @@ public class LoggerFragment extends Fragment implements TimerListener {
         enableOptions(true /* start */);
         Toast.makeText(getContext(), R.string.stop_message, Toast.LENGTH_LONG).show();
         displayTimer(mTimerValues, false /* countdownStyle */);
-        //mFileLogger.sendLog();
-        mAlternativeFileLogger.sendLog();
+
+        SharedPreferences sharedPreferences = PreferenceManager.
+                getDefaultSharedPreferences(getActivity());
+
+        if (sharedPreferences.getBoolean(
+                SettingsFragment.PREFERENCE_KEY_DEFAULT_LOG, false /*default return value*/)) {
+            mDefaultFileLogger.sendLog();
+        }
+
+        if (sharedPreferences.getBoolean(
+                SettingsFragment.PREFERENCE_KEY_CUSTOM_LOG, false /*default return value*/)) {
+            mCustomFileLogger.sendLog();
+        }
     }
 
     void displayTimer(TimerValues values, boolean countdownStyle) {
